@@ -18,8 +18,10 @@ void enableRawMode()
 
     struct termios raw = orig_termios;
 
-    raw.c_lflag &= ~(IXON);
-    raw.c_lflag &= ~(ECHO | ICANON | ISIG);
+    raw.c_iflag &= ~(BRKINT | ICRNL | INPCK | ISTRIP | IXON);
+    raw.c_lflag = (raw.c_lflag) & ~(OPOST);
+    raw.c_cflag |= (CS8);
+    raw.c_lflag = (raw.c_lflag) & ~(ECHO | ICANON | ISIG | IEXTEN);
 
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
@@ -31,9 +33,9 @@ int main(void)
     char c;
     while(read(STDIN_FILENO, &c, 1) == 1 && c != 'q'){
         if(iscntrl(c)){
-            printf("%d",c);
+            printf("%d\r\n",c);
         } else {
-            printf("%d ('%c')\n",c,c);
+            printf("%d ('%c')\r\n",c,c);
         }
     };
     disableRawMode();
